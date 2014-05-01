@@ -70,9 +70,10 @@ stack_t *rpn_eval(char *str) {
         if (isfloatc(c)) {
             /* prepend 0 if first char is '.' (eg .5 => 0.5, .75 => 0.75) */
             value = (c != '.' ? c - '0' : 0);
+            /* keep count of digits after decimal point */
             decimal_pos = (value == 0);
 
-            /* append each consecutive numerical digit to value (base 10)*/
+            /* append each consecutive digit to value (base 10)*/
             while (isfloatc(c = str[i])) {
                 if (c == '.') {
                     if (decimal_pos > 0) {
@@ -81,8 +82,10 @@ stack_t *rpn_eval(char *str) {
                     }
                     decimal_pos++;
                 } else if (decimal_pos > 0)
-                    value = value + ((c - '0') / pow(10, decimal_pos));
+                    /* append digit after '.', inc decimal digit counter */
+                    value = value + ((c - '0') / pow(10, decimal_pos++));
                 else {
+                    /* shift left and append digit */
                     value = value * 10 + c - '0';
                 }
                 i++;
