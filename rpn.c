@@ -72,17 +72,18 @@ stack_t *rpn_eval(char *str) {
             value = (c != '.' ? c - '0' : 0);
             decimal_pos = (value == 0);
 
-            /* append each consecutive numerical digit to value (base 10)*/
+            /* append each consecutive number to value (base 10)*/
             while (isfloatc(c = str[i])) {
+                /* keep track of the decimal point position (increases every at digit after '.')*/
                 if (c == '.') {
                     if (decimal_pos > 0) {
                         printf("Unexpected '.'\n");
                         return stack;
                     }
                     decimal_pos++;
-                } else if (decimal_pos > 0)
+                } else if (decimal_pos > 0) {
                     value = value + ((c - '0') / pow(10, decimal_pos));
-                else {
+                } else {
                     value = value * 10 + c - '0';
                 }
                 i++;
