@@ -24,11 +24,11 @@ void rpn_init(void) {
 
     operations = opmap_new(5);
 
-    opmap_addMap(operations, '+', _add);
-    opmap_addMap(operations, '-', _sub);
-    opmap_addMap(operations, '*', _mul);
-    opmap_addMap(operations, '/', _div);
-    opmap_addMap(operations, '^', _pow);
+    rpn_addOperation('+', _add);
+    rpn_addOperation('-', _sub);
+    rpn_addOperation('*', _mul);
+    rpn_addOperation('/', _div);
+    rpn_addOperation('^', _pow);
 }
 
 void rpn_performOperation(stack_t *stack, char op) {
