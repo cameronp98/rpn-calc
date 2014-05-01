@@ -1,11 +1,8 @@
-#include "stack.h"
-#include "opmap.h"
+#include "rpn.h"
 
 #include <stdio.h>
 #include <ctype.h>
 #include <math.h>
-
-#define isfloatc(c) (isdigit(c) || (c) == '.')
 
 float _add(float l, float r) { return l + r; }
 float _sub(float l, float r) { return l - r; }
@@ -14,6 +11,21 @@ float _div(float l, float r) { return l / r; }
 float _pow(float l, float r) { return pow(l, r); }
 
 opmap_t *operations;
+
+void rpn_addOperation(char op, cbptr *func) {
+    opmap_addMap(operations, op, func);
+}
+
+void rpn_init(void) {
+    operations = opmap_new(5);
+
+    opmap_addMap(operations, '+', _add);
+    opmap_addMap(operations, '-', _sub);
+    opmap_addMap(operations, '*', _mul);
+    opmap_addMap(operations, '/', _div);
+    opmap_addMap(operations, '^', _pow);
+}
+
 
 void rpn_performOperation(stack_t *stack, char op) {
     cbptr* callback = opmap_getFuncBySymbol(operations, op);
@@ -36,6 +48,12 @@ void rpn_performOperation(stack_t *stack, char op) {
 stack_t *rpn_eval(char *str) {
     stack_t *stack = stack_new();
 
+    if (operations == NULL) {
+        printf("parser unititialized; try using rpn_init()\n");
+        exit(EXIT_SUCCESS);
+    }
+
+
     unsigned short decimal_pos;
     float value;
 
@@ -44,7 +62,7 @@ stack_t *rpn_eval(char *str) {
     while ((c = str[i++]) != '\0') {
 
         if (isfloatc(c)) {
-            /* prepend 0 if first char is '.' (eg .5 = 0.5, .75 = 0.75) */
+            /* prepend 0 if first char is '.' (eg .5 => 0.5, .75 => 0.75) */
             value = (c != '.' ? c - '0' : 0);
             decimal_pos = (value == 0);
 
@@ -73,21 +91,3 @@ stack_t *rpn_eval(char *str) {
     return stack;
 }
 
-int main() {
-    operations = opmap_new(5);
-
-    opmap_addMap(operations, '+', _add);
-    opmap_addMap(operations, '-', _sub);
-    opmap_addMap(operations, '*', _mul);
-    opmap_addMap(operations, '/', _div);
-    opmap_addMap(operations, '^', _pow);
-
-    stack_t *results = rpn_eval("10 2/ 6*");
-
-    for (int i = 0; i < results->size; i++)
-        printf("result: %.2f\n", stack_pop(results));
-
-    stack_del(results);
-
-    return 0;
-}

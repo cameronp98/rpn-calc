@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 void error(char *msg) {
-    printf("Error: \"%s\"", msg);
+    printf("stack error: \"%s\"", msg);
     exit(EXIT_FAILURE);
 }
 

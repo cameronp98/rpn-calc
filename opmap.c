@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 void error(char *msg) {
-    printf("Error: \"%s\"", msg);
+    printf("opmap error: \"%s\"", msg);
     exit(EXIT_FAILURE);
 }
 
