@@ -4,6 +4,8 @@
 #include <ctype.h>
 #include <math.h>
 
+#define isfloatc(c) (isdigit(c) || (c) == '.')
+
 float _add(float l, float r) { return l + r; }
 float _sub(float l, float r) { return l - r; }
 float _mul(float l, float r) { return l * r; }
@@ -17,6 +19,9 @@ void rpn_addOperation(char op, cbptr *func) {
 }
 
 void rpn_init(void) {
+    if (operations)
+        return;
+
     operations = opmap_new(5);
 
     opmap_addMap(operations, '+', _add);
@@ -25,7 +30,6 @@ void rpn_init(void) {
     opmap_addMap(operations, '/', _div);
     opmap_addMap(operations, '^', _pow);
 }
-
 
 void rpn_performOperation(stack_t *stack, char op) {
     cbptr* callback = opmap_getFuncBySymbol(operations, op);
@@ -45,14 +49,16 @@ void rpn_performOperation(stack_t *stack, char op) {
     stack_put(stack, callback(left, right));
 }
 
+void rpn_showResults(stack_t *results) {
+    for (int i = 0 ; i < results->size; i++)
+        printf(" * %f\n", stack_pop(results));
+}
+
 stack_t *rpn_eval(char *str) {
     stack_t *stack = stack_new();
 
-    if (operations == NULL) {
-        printf("parser unititialized; try using rpn_init()\n");
-        exit(EXIT_SUCCESS);
-    }
-
+    if (operations == NULL)
+        rpn_init();
 
     unsigned short decimal_pos;
     float value;
@@ -71,13 +77,13 @@ stack_t *rpn_eval(char *str) {
                 if (c == '.') {
                     if (decimal_pos > 0) {
                         printf("Unexpected '.'\n");
-                        return 0;
+                        return stack;
                     }
                     decimal_pos++;
                 } else if (decimal_pos > 0)
                     value = value + ((c - '0') / pow(10, decimal_pos));
                 else {
-                    value = value * 10 + (c - '0');
+                    value = value * 10 + c - '0';
                 }
                 i++;
             }
@@ -90,4 +96,3 @@ stack_t *rpn_eval(char *str) {
 
     return stack;
 }
-
